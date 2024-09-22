@@ -1,30 +1,48 @@
+<!-- src/App.vue -->
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <div id="app">
+    <header>
+      <h1>Cargo Management System</h1>
+      <nav>
+        <router-link to="/">Schiffe</router-link>
+        <router-link to="/containers">Container</router-link>
+      </nav>
+    </header>
+    <main>
+      <router-view />
+    </main>
+  </div>
 </template>
 
+<script>
+export default {
+  name: 'App',
+};
+</script>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
-
+header {
+  background-color: #2E4053;
+  color: white;
+  padding: 20px;
+}
 nav {
-  padding: 30px;
+  margin-top: 10px;
 }
-
 nav a {
-  font-weight: bold;
-  color: #2c3e50;
+  color: white;
+  margin-right: 15px;
+  text-decoration: none;
 }
-
 nav a.router-link-exact-active {
-  color: #42b983;
+  text-decoration: underline;
+}
+main {
+  padding: 20px;
 }
 </style>
