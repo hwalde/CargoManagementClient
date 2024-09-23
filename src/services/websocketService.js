@@ -9,6 +9,10 @@ class WebSocketService {
     }
 
     connect() {
+        if (this.client) {
+            return;
+        }
+
         this.client = new Client({
             // Verwenden Sie den relativen Pfad für den WebSocket-Endpunkt
             webSocketFactory: () => new SockJS('/ws'), // /ws wird über den Proxy weitergeleitet

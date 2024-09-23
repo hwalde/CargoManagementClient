@@ -59,10 +59,46 @@ export default {
     };
 
     const handleWebSocketMessage = message => {
-      const body = JSON.parse(message.body);
-      // Aktualisiere die Schiffsliste basierend auf der Nachricht
-      fetchShips();
+      const body = message.body;
+
+      if (typeof body === 'string' && body.startsWith('deleted:')) {
+        // Nachricht ist ein Löschbefehl
+        const idStr = body.replace('deleted:', '');
+        const id = parseInt(idStr, 10);
+        if (!isNaN(id)) {
+          const shipExists = ships.value.some(ship => ship.id === id);
+          if (shipExists) {
+            ships.value = ships.value.filter(ship => ship.id !== id);
+            console.log(`Ship mit ID ${id} wurde gelöscht.`);
+          } else {
+            console.log(`Ship mit ID ${id} war bereits gelöscht.`);
+          }
+        } else {
+          console.warn('Ungültige Schiff-ID in der Löschnachricht:', body);
+        }
+      } else {
+        try {
+          const ship = JSON.parse(body);
+          if (typeof ship === 'object' && ship !== null && 'id' in ship) {
+            const index = ships.value.findIndex(s => s.id === ship.id);
+            if (index !== -1) {
+              // Schiff existiert bereits, aktualisieren
+              ships.value[index] = ship;
+              console.log(`Schiff mit ID ${ship.id} wurde aktualisiert.`);
+            } else {
+              // Schiff existiert nicht, hinzufügen
+              ships.value.push(ship);
+              console.log(`Neues Schiff mit ID ${ship.id} wurde hinzugefügt.`);
+            }
+          } else {
+            console.warn('Unbekanntes Nachrichtenformat:', ship);
+          }
+        } catch (error) {
+          console.error('Fehler beim Verarbeiten der WebSocket-Nachricht:', error);
+        }
+      }
     };
+
 
     onMounted(() => {
       fetchShips();

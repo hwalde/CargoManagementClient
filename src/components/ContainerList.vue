@@ -66,10 +66,46 @@ export default {
       showForm.value = false;
     };
 
+    // Implementierung der handleWebSocketMessage für Container
     const handleWebSocketMessage = message => {
-      const body = JSON.parse(message.body);
-      // Aktualisiere die Containerliste basierend auf der Nachricht
-      fetchContainers();
+      const body = message.body;
+
+      if (typeof body === 'string' && body.startsWith('deleted:')) {
+        // Nachricht ist ein Löschbefehl
+        const idStr = body.replace('deleted:', '');
+        const id = parseInt(idStr, 10);
+        if (!isNaN(id)) {
+          const containerExists = containers.value.some(container => container.id === id);
+          if (containerExists) {
+            containers.value = containers.value.filter(container => container.id !== id);
+            console.log(`Container mit ID ${id} wurde gelöscht.`);
+          } else {
+            console.log(`Container mit ID ${id} war bereits gelöscht.`);
+          }
+        } else {
+          console.warn('Ungültige Container-ID in der Löschnachricht:', body);
+        }
+      } else {
+        try {
+          const container = JSON.parse(body);
+          if (typeof container === 'object' && container !== null && 'id' in container) {
+            const index = containers.value.findIndex(c => c.id === container.id);
+            if (index !== -1) {
+              // Container existiert bereits, aktualisieren
+              containers.value[index] = container;
+              console.log(`Container mit ID ${container.id} wurde aktualisiert.`);
+            } else {
+              // Container existiert nicht, hinzufügen
+              containers.value.push(container);
+              console.log(`Neuer Container mit ID ${container.id} wurde hinzugefügt.`);
+            }
+          } else {
+            console.warn('Unbekanntes Nachrichtenformat:', container);
+          }
+        } catch (error) {
+          console.error('Fehler beim Verarbeiten der WebSocket-Nachricht:', error);
+        }
+      }
     };
 
     onMounted(() => {
